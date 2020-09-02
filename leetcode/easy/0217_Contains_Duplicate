@@ -1,0 +1,4 @@
+class Solution:
+    def containsDuplicate(self, nums: List[int]) -> bool:
+        # Hash table soliution O(N) time, O(N) space
+        return len(set(nums)) != len(nums)
