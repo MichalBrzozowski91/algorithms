@@ -1,29 +1,52 @@
 # Definition for a binary tree node.
 # class TreeNode:
-#     def __init__(self, val=0, left=None, right=None):
-#         self.val = val
-#         self.left = left
-#         self.right = right
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+from collections import deque
+
 class Solution:
-    def constructFromPrePost(self, pre: List[int], post: List[int]) -> TreeNode:
-        #print('Call of the function with pre:',pre,'post:',post)
-        if not pre:
-             return None # Empty tree
-        if pre == post:
-            return TreeNode(pre[0]) # One node tree
+    def helper(self,root,L):
+        '''Return all values of nodes at the depth L (in other words with distance L from the root)'''
+        if not root:
+            return []
+        if L == 0:
+            return [root.val]
+        left = self.helper(root.left,L - 1)
+        right = self.helper(root.right, L - 1)
+        return left + right
+    
+    def finder(self,root,target):
+        '''Finds a given node and returns a path to it'''
+        if not root:
+            return []
+        if root.val == target.val:
+            return [[root,None]]
+        left = self.finder(root.left,target)
+        right = self.finder(root.right,target)
+        if left != []:
+            return [[root,'left']] + left
+        if right != []:
+            return [[root,'right']] + right
+        return []
         
-        result = TreeNode(pre[0]) # or post[-1]
-        if pre[1] == post[-2]:
-            result.left = self.constructFromPrePost(pre[1:],post[:-1])
-            return result
-        else:
-            preindex = pre.index(post[-2])
-            left_pre = pre[1:preindex] # Preorder traversal of the left subtree
-            right_pre = pre[preindex:] # Preorder traversal of the right subtree
-            postindex = post.index(pre[1])
-            left_post = post[:postindex+1] # Postorder traversal of the left subtree
-            right_post = post[postindex+1:-1] # Postorder traversal of the right subtree
-            
-            result.left = self.constructFromPrePost(left_pre,left_post)
-            result.right = self.constructFromPrePost(right_pre,right_post)
-            return result
+    def distanceK(self, root: TreeNode, target: TreeNode, K: int) -> List[int]:
+        if not root:
+            return []
+        # We search a tree iteratively with an in-order traversal
+        finder = self.finder(root,target) 
+        finder.reverse()
+        result = []
+        for i in range(len(finder)):
+            if K - i < 0:
+                return result
+            node = finder[i][0]
+            # Eliminate a child
+            if finder[i][1] == 'left':
+                node.left = None
+            if finder[i][1] == 'right':
+                node.right = None
+            result += self.helper(node, K - i)
+        return result
