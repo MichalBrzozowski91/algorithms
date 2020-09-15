@@ -5,8 +5,8 @@
 #         self.left = left
 #         self.right = right
 class Solution:
-    def maxDepth(self, root: TreeNode) -> int:
+    def invertTree(self, root: TreeNode) -> TreeNode:
         if not root: # Empty tree
-            return 0
-        else:
-            return 1 + max(self.maxDepth(root.left),self.maxDepth(root.right))
+            return root
+        root.left, root.right = self.invertTree(root.right), self.invertTree(root.left)
+        return root
